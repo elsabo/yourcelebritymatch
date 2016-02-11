@@ -2,11 +2,14 @@
 
 The application uses IBM Watson [Personality Insights][pi_docs] and Twitter to find the celebrities that are similar to your personality. Twitter is being use to get the tweets for a given handler, the text from those tweets is send to Personality Insights, who analyze the text and reply with a personality profile. That profile is compared to celebrity profiles to find the most similar.
 
+The application is running in [Bluemix][bluemix].
+
 Live demo: http://your-celebrity-match.mybluemix.net/
 
-Give it a try! Click the button below to fork into IBM DevOps Services and deploy your own copy of this application on Bluemix.  
-[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/watson-developer-cloud/yourcelebritymatch)  
-**Note**: Once you deploy the application in Bluemix you will need to do some extra steps described below to setup the database and Twitter API credentials.
+Give it a try! Click the button below to fork into IBM DevOps Services and deploy your own copy of this application on Bluemix.
+
+[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/watson-developer-cloud/yourcelebritymatch)
+
 
 # How it works
 
@@ -23,7 +26,7 @@ Steps |
 
 This instructions will help you install the celebrities app in your local environment.
 
-1. Clone the repository with:
+1. Get the code by downloading this [file][code_zip] or cloning the git repository with:
 
     ```sh
     $ git clone git@github.com:watson-developer-cloud/yourcelebritymatch.git
@@ -47,14 +50,8 @@ This instructions will help you install the celebrities app in your local enviro
     ```
     (Run this in a separate terminal window)
 
-1. You need some credentials to use Twitter API, Personality Insights and MongoDC:
-  * Get credentials to use Personality Insights, instructions [here][pi_cred].  
-  * Create a **FREE** Mongodb database using [MongoLab](https://mongolab.com).  
-  * Create a Twitter app and get the API credentials [here][twitter_app].
-1. Update the Twitter, MongoDB and Personality Insights credentials in `config/config.js`
+1. Update the Twitter and Personality Insights credentials in `config/config.js`
     ```js
-    mongodb: process.env.MONGODB || 'mongodb://localhost/celebs',
-
     {
       personality_insights: {
         url:      '<url>',
@@ -70,7 +67,9 @@ This instructions will help you install the celebrities app in your local enviro
       }]
     }
     ```
+    Instructions on how to create an app and get Personality Insights credentials [here][um_cred].
 
+    Instructions on how to create an app and get Twitter credentials [here][twitter_app](you can use more than one Twitter app ;-) ).
 1. Start the app
 
     ```sh
@@ -130,9 +129,10 @@ You need to copy `username`, `password`.
   Find more open source projects on the [IBM Github Page](http://ibm.github.io/)
 
 [bluemix]: https://console.ng.bluemix.net/
+[code_zip]: https://github.rtp.raleigh.ibm.com/gattana-us/yourcelebritymatch/repository/archive.zip
 [node]: http://nodejs.org/download
 [mongodb]: http://docs.mongodb.org/manual/installation/
-[pi_cred]: https://github.com/watson-developer-cloud/um-ruby/blob/master/README.md
+[um_cred]: https://github.com/watson-developer-cloud/um-ruby/blob/master/README.md
 [twitter_app]: https://apps.twitter.com/app/new
 [german_twitter]: https://twitter.com/germanatt
 [nathan_twitter]: https://twitter.com/nfriedly

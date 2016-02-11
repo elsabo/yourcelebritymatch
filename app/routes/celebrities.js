@@ -1,4 +1,4 @@
-/* Copyright IBM Corp. 2015
+/* Copyright IBM Corp. 2014
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ var router = require('express').Router(),
   fs       = require('fs'),
   Q        = require('q'),
   Profile  = mongoose.model('Profile'),
-  User     = mongoose.model('User');
+  User     = mongoose.model('User'),
+  logger   = require('../../config/logger');
+
 
 /**
  * Render the celebrity list
@@ -59,7 +61,14 @@ var jsonProfiles = function(text) {
  * Validate twitter usernames
 */
 router.get('/syncdb', function (req, res) {
-  console.log('update celebrity database');
+  logger.info('update celebrity database');
+/*  
+  var removeAll = Q.nfbind(Profile.remove.bind(Profile)),
+    getFiles = Q.denodeify(fs.readdir),
+    getUsers = Q.denodeify(req.twit.getUsers.bind(req.twit)),
+    getFile = Q.denodeify(fs.readFile);
+*/
+
   var removeAll = Q.denodeify(Profile.remove.bind(Profile)),
     getFiles = Q.denodeify(fs.readdir),
     getUsers = Q.denodeify(req.twit.getUsers.bind(req.twit)),
@@ -67,19 +76,21 @@ router.get('/syncdb', function (req, res) {
 
   removeAll({})
   .then(function() {
+	  logger.info('@At removeall');
     return getFiles('./profiles');
   })
   .then(function(files){
-    if (!files || files.length === 0)
+    if (!files || files.length === 0) {
+		logger.info('No files foound');
       return;
+	  }
 
-    var user_ids = files.filter(jsonProfiles).map(getUserId),
-      count = Math.ceil(user_ids.length / 100),
-      promises = [];
+    var user_ids = files.filter(jsonProfiles).map(getUserId), count = Math.ceil(user_ids.length / 100), promises = [];
 
     for (var i = 0; i < count; i++) {
-      var ids = user_ids.slice(0,100);
-      user_ids = user_ids.slice(Math.min(100, user_ids.length));
+      var ids = user_ids.slice(0,100); user_ids = user_ids.slice(Math.min(100, user_ids.length));
+	  
+	  logger.info('ids are: ', ids);
       promises.push(getUsers({user_id:ids.join(',')}));
     }
     return Q.all(promises);
@@ -90,21 +101,23 @@ router.get('/syncdb', function (req, res) {
       users = users.concat(_users);
     });
 
-    console.log(users.length);
+    logger.info(users.length);
       return Q.all(users.map(function(u){
         getFile('./profiles/'+u.id+'.json')
         .then(function(profileJson) {
           u.profile = profileJson;
+		  logger.info('Create: ', u.id);
           return Profile.create(u).exec();
-        });
+        });	
       }));
   })
   .then(function(){
     res.redirect('/celebrities');
   })
+  // .fail(function (error) {
   .catch(function (error) {
-    console.log('error', error);
-    res.render('celebrities',{ error: error});
+    logger.error(error);
+    res.render('celebrities',{error:error});
   });
 });
 

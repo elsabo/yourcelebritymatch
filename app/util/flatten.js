@@ -1,4 +1,4 @@
-/* Copyright IBM Corp. 2015
+/* Copyright IBM Corp. 2014
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@
  * Return the Big 5 Traits normalized
  * @return Array      The 5 main traits
  */
-var big5 = function(tree) {
-  var profile = typeof(tree) === 'string' ? JSON.parse(tree) : tree;
+var big5 = function(tree) {  
+  var profile = typeof (tree) === 'string' ? JSON.parse(tree) : tree;
+  
+  
   var _big5 = profile.tree.children[0].children[0].children;
   return _big5.map(function(trait) {
-    return {
-      name: trait.name,
-      value: trait.percentage
-    };
+      return { name: trait.name, value: trait.percentage };
   });
 };
 

@@ -1,4 +1,4 @@
-/* Copyright IBM Corp. 2015
+/* Copyright IBM Corp. 2014
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 
 var util  = require('util'),
   twitter = require('twitter'),
-  Formatter = require('../util/util');
+  pi_util = require('../util/util'),
+  logger  = require('../../config/logger');
 
 var MAX_COUNT = 200;
 
@@ -40,7 +41,7 @@ TwitterHelper.prototype.getInstance = function() {
   var instance = this.count % this.twit.length;
   this.count ++;
 
-  console.log('instance', instance);
+  logger.info('instance',instance);
   return this.twit[instance];
 };
 
@@ -48,16 +49,19 @@ TwitterHelper.prototype.getInstance = function() {
  * @return {boolean} True if tweet is not a re-tweet or not in english
  */
 var englishAndNoRetweet = function(tweet) {
-  return tweet.lang === 'en' && !tweet.retweeted;
+	return tweet.lang === 'en' && !tweet.retweeted;
 };
 
+var spanishAndNoReTweet = function(tweet) {
+	return tweet.lang === 'es' && !tweet.retweeted;
+}
 /**
  * Get the tweets based on the given screen_name.
  * Implemented with recursive calls that fetch up to 200 tweets in every call
  * Only returns english and original tweets (no retweets)
  */
 TwitterHelper.prototype.getTweets = function(screen_name, callback) {
-  console.log('getTweets for:', screen_name);
+  logger.info('getTweets for:', screen_name);
 
   var self = this,
     tweets = [],
@@ -72,12 +76,10 @@ TwitterHelper.prototype.getTweets = function(screen_name, callback) {
     if (!util.isArray(_tweets))
       return callback(_tweets,null);
 
-    var items = _tweets
-    .filter(englishAndNoRetweet)
-    .map(Formatter.toContentItem);
+    var items = _tweets.filter(englishAndNoRetweet).map(pi_util.toContentItem);
 
     tweets = tweets.concat(items);
-    console.log(screen_name,'_tweets.count:',tweets.length);
+    logger.info(screen_name,'_tweets.count:',tweets.length);
     if (_tweets.length > 1) {
       params.max_id = _tweets[_tweets.length-1].id - 1;
       self.getInstance().getUserTimeline(params, processTweets);
@@ -93,14 +95,14 @@ TwitterHelper.prototype.getTweets = function(screen_name, callback) {
  * It looks at params to determinate what to use
  */
 TwitterHelper.prototype.getUsers = function(params, callback) {
-  console.log('getUsers:', params);
+  logger.info('getUsers:', params);
 
-  this.getInstance().post('/users/lookup.json',params,function(tw_users) {
+  this.getInstance().post('/users/lookup.json', params, function(tw_users) {
     if (tw_users.statusCode){
-      console.log('error getting the twitter users');
+      logger.info('error getting the twitter users');
       callback(tw_users);
     } else
-      callback(null, tw_users.map(Formatter.toAppUser.bind(Formatter)));
+      callback(null, tw_users.map(pi_util.toAppUser.bind(pi_util)));
   });
 };
 
@@ -110,10 +112,10 @@ TwitterHelper.prototype.getUsers = function(params, callback) {
 TwitterHelper.prototype.showUser = function(screen_name, callback) {
   this.getInstance().showUser(screen_name, function(user){
     if (user.statusCode){
-      console.log(screen_name, 'is not a valid twitter');
+      logger.info(screen_name, 'is not a valid twitter');
       callback(user);
     } else
-      callback(null, Formatter.toAppUser(user));
+      callback(null, pi_util.toAppUser(user));
   });
 };
 

@@ -1,4 +1,4 @@
-/* Copyright IBM Corp. 2015
+/* Copyright IBM Corp. 2014
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ module.exports = {
       id: tweet.id_str,
       userid: tweet.user.id_str,
       sourceid: 'twitter',
-      language: (tweet.lang && (['es','en'].indexOf(tweet.lang) > -1)) ? tweet.lang : 'en',
+      language: 'en',
       contenttype: 'text/plain',
       content: tweet.text.replace('[^(\\x20-\\x7F)]*',''),
       created: Date.parse(tweet.created_at)
@@ -55,7 +55,7 @@ module.exports = {
       tweets: user.statuses_count,
       verified: user.verified,
       protected: user.protected,
-      image: user.profile_image_url_https
+      image: user.profile_image_url
     };
   },
 
